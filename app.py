@@ -35,6 +35,10 @@ def create_app():
             db.session.commit()
             flash('Вы успешно зарегистрированы!', 'success')
             return redirect(url_for('login'))
+
+        elif User.query.filter_by(nickname=form.nickname.data).first():
+            flash('Пользователь с таким ником уже существует. Пожалуйста, выберите другое имя.', 'danger')
+
         return render_template('register.html', form=form)
 
     @app.route('/login', methods=['GET', 'POST'])
@@ -53,7 +57,35 @@ def create_app():
     def game():
         if 'user_id' not in session:
             return redirect(url_for('login'))
-        return render_template('game.html')
+
+        # список уровней с названиями
+        levels = [
+            {'num': 1, 'title': 'Начало'},
+            {'num': 2, 'title': 'Развитие'},
+            {'num': 3, 'title': 'Кульминация'},
+            {'num': 4, 'title': 'Финал'},
+        ]
+        return render_template('game.html', levels=levels)
+
+    @app.route('/game/<int:level>')
+    def game_level(level):
+        if 'user_id' not in session:
+            return redirect(url_for('login'))
+
+        # найдём в том же списке название выбранного уровня
+        level_info = next((l for l in [
+            {'num': 1, 'title': 'Начало'},
+            {'num': 2, 'title': 'Развитие'},
+            {'num': 3, 'title': 'Кульминация'},
+            {'num': 4, 'title': 'Финал'},
+        ] if l['num'] == level), None)
+
+        if not level_info:
+            return redirect(url_for('game'))
+
+        return render_template('game.html',
+                               level=level_info['num'],
+                               level_title=level_info['title'])
 
     @app.route('/logout')
     def logout():

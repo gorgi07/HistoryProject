@@ -1,6 +1,23 @@
 {% extends 'base.html' %}
 {% block title %}Игра{% endblock %}
+
 {% block content %}
-    <h2>Игра</h2>
-    <p>Здесь будет игровой контент для пользователя.</p>
+  {% if levels %}
+    <h2>Выберите уровень</h2>
+    <div class="list-group">
+      {% for lvl in levels %}
+        <a href="{{ url_for('game_level', level=lvl.num) }}"
+           class="list-group-item list-group-item-action">
+          Уровень {{ lvl.num }} – {{ lvl.title }}
+        </a>
+      {% endfor %}
+    </div>
+
+  {% elif level %}
+    <h2>Уровень {{ level }} – {{ level_title }}</h2>
+    <p>Здесь позже будет контент для уровня «{{ level_title }}».</p>
+
+  {% else %}
+    <p class="text-danger">Ничего не найдено.</p>
+  {% endif %}
 {% endblock %}
