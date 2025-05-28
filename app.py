@@ -2,7 +2,7 @@ import os
 import secrets
 
 from flask import Flask, render_template, redirect, url_for, flash, session
-from models import db, User
+from models import db, User, Situation
 from forms import RegistrationForm, LoginForm, ChangePasswordForm
 
 def create_app():
@@ -53,37 +53,66 @@ def create_app():
             flash('Неверный ник или пароль.', 'danger')
         return render_template('login.html', form=form)
 
-    @app.route('/game')
-    def game():
+    # @app.route('/game')
+    # def game():
+    #     if 'user_id' not in session:
+    #         return redirect(url_for('login'))
+    #
+    #     # список уровней с названиями
+    #     levels = [
+    #         {'num': 1, 'title': '8 минут до катастрофы'},
+    #         {'num': 2, 'title': 'Глубина отчаяния'},
+    #         {'num': 3, 'title': 'Учения на границе мира'}
+    #     ]
+    #     return render_template('game.html', levels=levels)
+
+    # @app.route('/game/<int:level>')
+    # def game_level(level):
+    #     if 'user_id' not in session:
+    #         return redirect(url_for('login'))
+    #
+    #     # найдём в том же списке название выбранного уровня
+    #     level_info = next((l for l in [
+    #         {'num': 1, 'title': '8 минут до катастрофы'},
+    #         {'num': 2, 'title': 'Глубина отчаяния'},
+    #         {'num': 3, 'title': 'Учения на границе мира'}
+    #     ] if l['num'] == level), None)
+    #
+    #     if not level_info:
+    #         return redirect(url_for('game'))
+    #
+    #     return render_template('game.html',
+    #                            level=level_info['num'],
+    #                            level_title=level_info['title'])
+
+    @app.route('/game/', defaults={'level': None, 'sid': None})
+    @app.route('/game/<int:level>/', defaults={'sid': None})
+    @app.route('/game/<int:level>/<int:sid>/')
+    def game(level, sid):
+        # 0. Защита: только для залогиненных
         if 'user_id' not in session:
             return redirect(url_for('login'))
 
-        # список уровней с названиями
-        levels = [
-            {'num': 1, 'title': '8 минут до катастрофы'},
-            {'num': 2, 'title': 'Глубина отчаяния'},
-            {'num': 3, 'title': 'Учения на границе мира'}
-        ]
-        return render_template('game.html', levels=levels)
+        # 1. Если level не задан — показываем выбор из 3 уровней
+        if level is None:
+            levels = [
+                {'num': 1, 'title': '8 минут до катастрофы'},
+                {'num': 2, 'title': 'Средний этап'},
+                {'num': 3, 'title': 'Финал'}
+            ]
+            return render_template('game.html', levels=levels)
 
-    @app.route('/game/<int:level>')
-    def game_level(level):
-        if 'user_id' not in session:
-            return redirect(url_for('login'))
+        # 2. level задан, sid не задан — загружаем первый шаг этого уровня
+        if sid is None:
+            sit = (Situation.query
+                   .filter_by(level=level)
+                   .order_by(Situation.id)
+                   .first_or_404())
+        else:
+            # 3. и level, и sid заданы — конкретная ситуация
+            sit = Situation.query.get_or_404(sid)
 
-        # найдём в том же списке название выбранного уровня
-        level_info = next((l for l in [
-            {'num': 1, 'title': '8 минут до катастрофы'},
-            {'num': 2, 'title': 'Глубина отчаяния'},
-            {'num': 3, 'title': 'Учения на границе мира'}
-        ] if l['num'] == level), None)
-
-        if not level_info:
-            return redirect(url_for('game'))
-
-        return render_template('game.html',
-                               level=level_info['num'],
-                               level_title=level_info['title'])
+        return render_template('game.html', sit=sit)
 
     @app.route('/logout')
     def logout():
