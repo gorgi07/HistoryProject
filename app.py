@@ -60,10 +60,9 @@ def create_app():
 
         # список уровней с названиями
         levels = [
-            {'num': 1, 'title': 'Начало'},
-            {'num': 2, 'title': 'Развитие'},
-            {'num': 3, 'title': 'Кульминация'},
-            {'num': 4, 'title': 'Финал'},
+            {'num': 1, 'title': '8 минут до катастрофы'},
+            {'num': 2, 'title': 'Глубина отчаяния'},
+            {'num': 3, 'title': 'Учения на границе мира'}
         ]
         return render_template('game.html', levels=levels)
 
@@ -74,10 +73,9 @@ def create_app():
 
         # найдём в том же списке название выбранного уровня
         level_info = next((l for l in [
-            {'num': 1, 'title': 'Начало'},
-            {'num': 2, 'title': 'Развитие'},
-            {'num': 3, 'title': 'Кульминация'},
-            {'num': 4, 'title': 'Финал'},
+            {'num': 1, 'title': '8 минут до катастрофы'},
+            {'num': 2, 'title': 'Глубина отчаяния'},
+            {'num': 3, 'title': 'Учения на границе мира'}
         ] if l['num'] == level), None)
 
         if not level_info:
