@@ -97,8 +97,8 @@ def create_app():
         if level is None:
             levels = [
                 {'num': 1, 'title': '8 минут до катастрофы'},
-                {'num': 2, 'title': 'Средний этап'},
-                {'num': 3, 'title': 'Финал'}
+                {'num': 2, 'title': 'Глубина отчаяния'},
+                {'num': 3, 'title': 'Учения на границе Мира'}
             ]
             return render_template('game.html', levels=levels)
 
